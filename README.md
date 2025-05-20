@@ -1,3 +1,7 @@
 # goproject
+Running CentOS9
 Go Project for testing http code
-Here is where I am testing some code to be used in an upcomming project for website
+A sample ToDo List w/ web port 8080
+Be sure to open firewall ports if testing remotely other than localhost
+sudo firewall-cmd --add-port=8080/tcp --permanent
+sudo firewall-cmd --reload
