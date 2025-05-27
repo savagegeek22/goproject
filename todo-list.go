@@ -1,3 +1,5 @@
+// A simple ToDo list demonstrating func, gets, API, and html
+
 package main
 
 import (
