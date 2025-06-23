@@ -1,10 +1,7 @@
-// A sample of GoLang for demonstrating how to offer tickets, and have users buy them, and reduce the count
-// Also to show for loops, if and then and breaks
-
 package main
 
-import (
-	"fmt"
+import ( 
+	"fmt" // do this import in order to be able to use fmt.Printf statements to show user what to do
 	"strings" // do this import in order to be able to use strings.Fields below
 )
 
@@ -15,68 +12,109 @@ func main() {
 	// var bookings [50]string  <<-- This is an array with a value of how many can be added
 	bookings := []string{} // This is a SLICE with no limit in the Array, and not starting with zero [0] and empty slice
 
-	// Logic to only allow 50 tickets is in for loop, and if statement below
-
+	// Logic to only allow 50 tickets is in the for loop, and if statement below
 	// fmt.Printf("conferenceTickets is %T, remainingTickets is %T, conferenceName is %T\n", conferenceTickets, remainingTickets, conferenceName )
 	// Above just shows on the output after running the go program what the type is (ie. int, or uint, or string, etc
 
-    fmt.Printf("Welcome to %v booking application\n", conferenceName)
-	fmt.Printf("We have total of %v tickets and %v are still available.\n", conferenceTickets, remainingTickets )
-	fmt.Println("Get your tickets here to attend")
+	greetUsers(conferenceName, conferenceTickets, remainingTickets)
+
 
 	for {
-	    var firstName string
-		var lastName string
-		var email string
-		var userTickets uint
-		// ask user for their name via the & sign along with Scan (ie. fmt.Scan(&firstName)
-		fmt.Println("Enter your first name: ")
-		fmt.Scan(&firstName)
+	    
+	firstName, lastName, email, userTickets := getUserInput()
+	isValidName, isValidEmail, isValidTicketNumber := validateUserInput(firstName, lastName, email, userTickets, remainingTickets)
 
-		fmt.Println("Enter your last name: ")
-		fmt.Scan(&lastName)
 
-		fmt.Println("Enter your email address: ")
-		fmt.Scan(&email)
-
-		fmt.Println("Enter number of tickets: ")
-		fmt.Scan(&userTickets)
-
-		isValidName := len(firstName) >= 2 && len(lastName) >= 2 // Check the length of the name to be sure atleast 2 characters
-		isValidEmail := strings.Contains(email, "@") // Check for a valid @ in the email address
-		isValidTicketNumber := > 0 && userTickets <= remainingTickets // Check for positive number of tickets greater than zero 0,
-														   // and if userTickets is less than remainingTickets
-		isValidCity := city != "Singapore" && city != "Longdon" // BTW The || is an or operator
-
+		// isValidCity := city != "Singapore" && city != "London" // example BTW The || is an or operator
 		// Use logic if there are more booked tickets than being offered! And ask the user to redo thier choice
-		if  {
-			remainingTickets = remainingTickets - userTickets
-			// bookings[0] = firstName + " " + lastName    <<-- No need to have this since it's not being used if using a Slice to append. See next line below
-			bookings = append(bookings, firstName + " " + lastName) // This appends the Array using the Slice so we do not have to keep track of indexes
 
-			fmt.Printf("Thank you %v %v for booking %v tickets. You will receive a confirmation email at %v\n", firstName, lastName, userTickets, email)
-			fmt.Printf("%v tickets remaining for %v\n", remainingTickets, conferenceName)
+		if  isValidName && isValidEmail && isValidTicketNumber {  // All three of these var's have to be valid! 
 
-			firstNames := []string{}
-			for _, booking := range bookings { // This supples the 1st, 2nd, 3rd etc.. Iteration index0 and the booking, The underscore _ is called Blank Identifier
-				var names = strings.Fields(booking) // splits the string w/ white spaces as separator, and returns a slice w/the split elements
-													// (ie. "Nicle Smith"  vs  ["Nicle, "Smith"]
-													//       Above String         Above Slice
-				firstNames = append(firstNames, names[0])
-			}
+			bookings = bookTicket(remainingTickets, userTickets, bookings, firstName, lastName, email, conferenceName)
+
+            firstNames := getFirstNames(bookings)
 			fmt.Printf("The first names of bookings are: %v\n", firstNames)
-
+			
 			// var noTicketsRemaining bool = remainingTickets == 0 <<-- Same meaning with syntax below... showing for awareness w/ colon equal :=
-			// noTicketsRemaining := remainingTickets == 0 <<-- Sine we are not using the variable noTicketsRemaining, we can remove this line and...
-			if remainingTickets == 0 {  // <<-- use this instead as a boolean, since "remainingTickets" is already declared as a variable above
+			// noTicketsRemaining := remainingTickets == 0 <<-- Since we are not using the variable noTicketsRemaining, we can remove this line and...
+			if remainingTickets == 0 {  // <<-- ...use this instead as a boolean, since "remainingTickets" is already declared as a variable above
 				// end program
 				fmt.Println("Sorry, our conference is booked up. Please come back next year.")
-				break
+				break // This breaks the FOR Loop
 			}
 		} else {
-			fmt.Printf("Sorry, We only have %v tickets remaining, please book less than %v tickets\n", remainingTickets, userTickets)
+			if !isValidName {
+				fmt.Println("first name or last name you entered is too short")
+			}
+			if !isValidEmail {
+				fmt.Println("email address you entered doesn't contain an @ sign, please correct your email")	
+			}
+			if !isValidTicketNumber {
+				fmt.Println("number of tickets you entered is invalid, please supply less than tickets")
+			}
+			// fmt.Printf("Sorry, We only have %v tickets remaining, please book less than %v tickets\n", remainingTickets, conferenceTickets)
 		}
+		
+	 }
 
+  }
+
+func greetUsers(confName string, confTickets int, remainingTickets uint) {
+	fmt.Printf("Welcome to %v booking applications\n", confName)
+	fmt.Printf("We have total of %v tickets and %v are still available.\n", confTickets, remainingTickets )
+	fmt.Println("Get your tickets here to attend.")
+	
+}
+
+func getFirstNames(bookings []string) []string {  // The first string is getting the first and last names, and the second string is returning what was entered
+	firstNames := []string{}  // STRING !!!!  This is a SLICE with no limit in the Array, and not starting with zero [0] and an empty slice
+	for _, booking := range bookings { // This supples the 1st, 2nd, 3rd etc.. Iteration index0 and the booking, The underscore _ is called Blank Identifier
+		var names = strings.Fields(booking) // splits the string w/ white spaces as separator, and returns a slice w/the split elements
+		firstNames = append(firstNames, names[0])  // (ie. "Nicle Smith"  vs  ["Nicle, "Smith"]
+													       //       Above String         Above Slice
 	}
+	return firstNames
+			
+}
 
+func validateUserInput(firstName string, lastName string, email string, userTickets uint, remainingTickets uint) (bool, bool, bool) {
+	// THIS CHECKS THE VALIDATION OF NAME, EMAIL, AND VALID TICKETS...
+	isValidName := len(firstName) >= 2 && len(lastName) >= 2 // Check the length of the first and last name to be sure atleast 2 characters
+	isValidEmail := strings.Contains(email, "@") // Check for a valid @ in the email address
+	isValidTicketNumber := userTickets > 0 && userTickets <= remainingTickets  // Check for positive number of tickets greater than zero 0, and less than remaining
+    return isValidName, isValidEmail, isValidTicketNumber
+}
+
+func getUserInput() (string, string, string, uint){
+	var firstName string // This is a variable for firstName, and is a STRING Type
+	var lastName string  // This is a variable for lastName, and is a STRING Type
+	var email string     // This is a variable for email, and is a STRING Type
+	var userTickets uint // This is a variable for userTickets, and is a STRING Type
+
+	// ask user for their name via the & sign along with Scan (ie. fmt.Scan(&firstName) 
+	fmt.Println("Enter your first name: ")
+	fmt.Scan(&firstName)
+
+	// ask user for their name via the & sign along with Scan (ie. fmt.Scan(&lastName) 
+	fmt.Println("Enter your last name: ")
+	fmt.Scan(&lastName)
+	
+	// ask user for their name via the & sign along with Scan (ie. fmt.Scan(&email) 
+	fmt.Println("Enter your email address: ")
+	fmt.Scan(&email)
+
+	// ask user for their name via the & sign along with Scan (ie. fmt.Scan(&userTickets) 
+	fmt.Println("Enter number of tickets: ")
+	fmt.Scan(&userTickets)
+
+	return firstName, lastName, email, userTickets
+}
+
+func bookTicket(remainingTickets uint, userTickets uint, bookings []string, firstName string, lastName string, email string, conferenceName string ) []string {
+	remainingTickets = remainingTickets - userTickets
+	bookings = append(bookings, firstName + " " + lastName)
+
+	fmt.Printf("Thank you %v %v for booking %v tickets. You will receive a confirmation email at %v\n", firstName, lastName, userTickets, email)
+	fmt.Printf("%v tickets remaining for %v\n", remainingTickets, conferenceName)
+	return bookings
 }
